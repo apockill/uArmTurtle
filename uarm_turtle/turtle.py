@@ -1,5 +1,6 @@
 from math import sin, cos, radians
 
+from uarm_turtle.mapper import Map
 
 
 class Turtle:
@@ -8,20 +9,24 @@ class Turtle:
     """
 
     def __init__(self):
-        self.pos = (0, 0)
-        self.dir = 0
+        self.pos = None
+        self.dir = None
+        self.pen_down = False  # True: Pen down, False: Pen up
+        self.map = Map()
 
-        # A log of coordinates
-        self.log = []
+        self.reset()
 
 
     def __repr__(self):
         return str(self.pos) + " " + str(self.dir)
 
     def reset(self):
-        self.pos = (0, 0)
+        self.pos = [0, 0]
         self.dir = 0
-        self.log = []
+        self.pen_down = False
+
+        self.map = Map()
+        self.map.append(self.pos, self.pen_down)
 
     def forward(self, unit):
         new_x = unit * cos(radians(self.dir)) + self.pos[0]
@@ -39,6 +44,13 @@ class Turtle:
     def left(self, degrees):
         self.right(-degrees)
 
+    def pen_up(self):
+        self.pen_down = False
+        self.postprocess()
+
+    def pen_down(self):
+        self.pen_down = True
+        self.postprocess()
 
     @property
     def position(self):
@@ -50,5 +62,4 @@ class Turtle:
 
 
     def postprocess(self):
-        print(self)
-        self.log.append([self.pos, self.dir])
+        self.map.append(self.pos, self.pen_down)
