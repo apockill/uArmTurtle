@@ -17,57 +17,58 @@ class FakeSwift:
 
 class RobotMapper:
     BOUNDS = (150, -80, 225, 80)
-    MOVE_SPEED = 1000
-    LASER_SPEED = 200
+    MOVE_SPEED = 1500
+    LASER_SPEED = 150
     # 180 > 150
 
-    def __init__(self, dev_port, z_height=120):
+    def __init__(self, dev_port, z_height=180):
         self.draw_height = z_height
         self.current_map = None
         self.running = False
 
         # Set up robot
         print("Connecting to robot")
-        self.swift = FakeSwift(dev_port=dev_port)
-        # sleep(2)
+        self.swift = SwiftAPI(dev_port=dev_port)
+        sleep(2)
         print("Done Connecting")
         self.reset()
 
 
     def draw_map(self, map):
         """ Resize map and prep for use, then start running"""
-        print("From map: ", map.unit_vector())
+
         map = map.fit_to(self.BOUNDS)
-        print("To: ", map)
+
         self.current_map = map
         self.swift.set_position(150, 0, self.draw_height, speed=self.MOVE_SPEED, wait=True)
 
-        lines = map.get_lines()
-        print("Drawing: ", lines)
-        for pt1, pt2 in lines:
-            if pt1 == pt2: continue
-            self.draw_line(pt1, pt2)
+        for cur_pt, next_pt, pen_down in self.current_map:
+            if not pen_down: continue
+            self.draw_line(cur_pt, next_pt)
 
+        self.reset()
 
     def draw_line(self, from_pt, to_pt):
-        print("Drawing Line: ", from_pt, to_pt)
+        # Make sure it's a valid request
+        if from_pt == to_pt: return
+
         LASER_CMD = "G1 X{} Y{} Z{} F{}"
 
+        # Get into the correct position before drawing the linn
         cur_pos = self.swift.get_position()[:2]
         if cur_pos != from_pt:
             print("Moving to", from_pt, "from", cur_pos)
             self.swift.set_position(x=from_pt[0], y=from_pt[1], z=self.draw_height, speed=self.MOVE_SPEED, wait=True)
 
+        # Actually draw the line
+        print("Drawing Line: ", from_pt, to_pt)
         to_pt = [int(round(to_pt[0])), int(round(to_pt[1]))]
-
         cmd = LASER_CMD.format(to_pt[0], to_pt[1], self.draw_height, self.LASER_SPEED)
-
         assert self.swift.send_cmd_sync(cmd) == "ok", "Unable to send robot to using laser command!"
-        while self.swift.get_is_moving():
-            print("Moving")
+
         # Set the position normally, to turn off the laser
         self.swift.set_position(x=to_pt[0], y=to_pt[1], z=self.draw_height, speed=self.MOVE_SPEED, wait=True)
-        pass
+
 
     def stop(self):
         self.running = False

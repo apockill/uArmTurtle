@@ -84,6 +84,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def run_script(self):
         code = self.script.get_code()
         test = "turtle.forward(10)\nturtle.right(90)\nturtle.backward(15)\nturtle.left(20)\nturtle.forward(5)"
+        test = """
+turtle.forward(10)
+turtle.right(90)
+turtle.pen_up()
+turtle.forward(10)
+turtle.right(90)
+turtle.pen_down()
+turtle.forward(10)
+"""
         test = "turtle.forward(10)\nturtle.right(60)\n" * 6
         output_map = self.turtle.run_code(test)
         self.current_map = output_map
