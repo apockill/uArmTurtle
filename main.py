@@ -94,7 +94,7 @@ turtle.pen_down()
 turtle.forward(10)
 """
         test = "turtle.forward(10)\nturtle.right(60)\n" * 6
-        output_map = self.turtle.run_code(test)
+        output_map = self.turtle.run_code(code)
         self.current_map = output_map
 
     def run_robot(self):

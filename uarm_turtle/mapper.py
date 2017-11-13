@@ -16,6 +16,12 @@ class Map:
             self.pts = []
             self.pen_down = []  # A list of pen_down state for every pt
 
+    def __iter__(self):
+        """ Returns:
+        current_coordinate, next_coordinate, pen_down"""
+        for i, pt in enumerate(self.pts[:-1]):
+            yield pt, self.pts[i + 1], self.pen_down[i]
+
     def __repr__(self):
         return str(self.pts)
 

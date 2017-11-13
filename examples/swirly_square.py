@@ -3,16 +3,14 @@ cat=100
 loops = 0
 while loops < 100:
     loops +=1
-    forward (cat)
-    backward (50)
-    right (90)
-    pencolor("red")
-    forward (50)
-    right (90)
-    forward (50)
-    right (90)
-    forward (40)
-    pencolor("Blue")
-    left (1)
+    turtle.forward (cat)
+    turtle.backward (50)
+    turtle.right (90)
+    turtle.forward (50)
+    turtle.right (90)
+    turtle.forward (50)
+    turtle.right (90)
+    turtle.forward (40)
+    turtle.left (1)
     cat=cat+5
-done()
+

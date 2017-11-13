@@ -17,7 +17,7 @@ class TurtleWidget(QtWidgets.QWidget):
         self.init_ui()
 
         # Handle the animation of the turtle vectors
-        self.animation = []  # A list of all line vectors drawn by the turtle
+        self.animation_map = []  # A Map objec of the turtle movements
         self.cur_frame = 0  # The current frame that the animation is on
         self.animation_timer = QtCore.QTimer()  # Needs to exist so that singleshots don't get garbage collected
         self.animation_timer.timeout.connect(self.animate)
@@ -47,15 +47,20 @@ class TurtleWidget(QtWidgets.QWidget):
         qp.setPen(pen)
 
         # Draw current animation frames
-        for line in self.animation[:self.cur_frame]:
-            qp.drawLine(line[0][0], line[0][1], line[1][0], line[1][1])
+        frame_counter = 0
+        for cur_pt, next_pt, pen_down in self.animation_map:
+            if frame_counter > self.cur_frame: break
+            frame_counter += 1
+
+            if not pen_down: continue
+            qp.drawLine(cur_pt[0], cur_pt[1], next_pt[0], next_pt[1])
 
 
     def reset_canvas(self):
-        self.animation = []
+        self.animation_map = []
         self.cur_frame = 0
 
-        self.animation = []
+        self.animation_map = []
         self.update()
 
     def animate(self):
@@ -65,14 +70,17 @@ class TurtleWidget(QtWidgets.QWidget):
         :param [[x,y], [x,y], [x, y], [x, y]]:
         :return:
         """
-        self.cur_frame = self.cur_frame + 1 if self.cur_frame < len(self.animation) else len(self.animation)
-        self.update()
+        if self.cur_frame < len(self.animation_map):
+            self.cur_frame += 1
+            self.update()
+
 
     def run_code(self, code):
         """ Returns None if it was unable to parse the code or the map was invalid (only one move)"""
 
         turtle = self.turtle
         turtle.reset()
+        print(code)
         exec(code)
         # try:
         #     exec(code)
@@ -91,7 +99,7 @@ class TurtleWidget(QtWidgets.QWidget):
         map = Map(turtle.map)
         bounds = (0, 0, self.frameGeometry().width(), self.frameGeometry().height())
         bounded = map.fit_to(bounds)
-        self.animation = bounded.to_int().get_lines()
+        self.animation_map = bounded
         self.cur_frame = 0
 
         return bounded.unit_vector()

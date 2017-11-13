@@ -11,7 +11,7 @@ class Turtle:
     def __init__(self):
         self.pos = None
         self.dir = None
-        self.pen_down = False  # True: Pen down, False: Pen up
+        self.is_pen_down = True  # True: Pen down, False: Pen up
         self.map = Map()
 
         self.reset()
@@ -23,10 +23,10 @@ class Turtle:
     def reset(self):
         self.pos = [0, 0]
         self.dir = 0
-        self.pen_down = False
+        self.is_pen_down = True
 
         self.map = Map()
-        self.map.append(self.pos, self.pen_down)
+        self.map.append(self.pos, self.is_pen_down)
 
     def forward(self, unit):
         new_x = unit * cos(radians(self.dir)) + self.pos[0]
@@ -45,11 +45,11 @@ class Turtle:
         self.right(-degrees)
 
     def pen_up(self):
-        self.pen_down = False
+        self.is_pen_down = False
         self.postprocess()
 
     def pen_down(self):
-        self.pen_down = True
+        self.is_pen_down = True
         self.postprocess()
 
     @property
@@ -62,4 +62,4 @@ class Turtle:
 
 
     def postprocess(self):
-        self.map.append(self.pos, self.pen_down)
+        self.map.append(self.pos, self.is_pen_down)
